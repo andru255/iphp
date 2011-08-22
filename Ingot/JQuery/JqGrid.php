@@ -166,7 +166,7 @@ class Ingot_JQuery_JqGrid {
 		$this->_options ['viewrecords'] = true;
 		$this->_options ['colModel'] = array ();
 		$this->_options ['autowidth'] = true;
-		$this->_options ['height'] = '400px';
+		$this->_options ['height'] = '480px';
 		$this->_options ['rowNum'] = $this->_defaultItemCountPerPage;
 		$this->_options ['rowList'] = range ( $this->_defaultItemCountPerPage, $this->_defaultItemCountPerPage * 5, $this->_defaultItemCountPerPage );
 		$this->_options ['caption'] = ucwords ( str_replace ( "_", "", $this->_id ) );
@@ -200,12 +200,11 @@ class Ingot_JQuery_JqGrid {
 	 * @return Ingot_JQuery_JqGrid
 	 */
 	public function setOption($name, $value) {
-	
-	
+		
 		$arrUnEscapeList = array_merge ( Ingot_JQuery_JqGrid::$arrEvents, Ingot_JQuery_JqGrid::$arrCallbacks );
 		
 		if (in_array ( $name, $arrUnEscapeList, true )) {
-			$this->_options [$name] = new Zend_Json_Expr($value);			
+			$this->_options [$name] = new Zend_Json_Expr ( $value );
 		} else {
 			$this->_options [$name] = $value;
 		}
@@ -290,10 +289,11 @@ class Ingot_JQuery_JqGrid {
 	 * @param Ingot_JQuery_JqGrid_Column $column
 	 * @return Ingot_JQuery_JqGrid
 	 */
-	public function addColumn( $column) {
+	public function addColumn($column) {
 		$this->_columns [$column->getName ()] = $column;
+		$column->setGrid ( $this );
 		//$column->setGridId ($this->getId());
-		//$column->runDecorate ();
+		$column->decorate ();
 		
 		return $column;
 	}
@@ -334,7 +334,7 @@ class Ingot_JQuery_JqGrid {
 	 * @param  Zend_View_Interface $view
 	 * @return string
 	 */
-	public function render(Zend_View_Interface $view = null) {
+	public function render(Zend_View_Interface $view = null, $arrOptions = null) {
 		
 		if (null !== $view) {
 			$this->setView ( $view );
@@ -363,6 +363,10 @@ class Ingot_JQuery_JqGrid {
 		}
 		
 		$this->_plugins->postRender ();
+		
+		if (! empty ( $arrOptions ) && ! empty ( $arrOptions ['DblClkEdit'] ) && ($arrOptions ['DblClkEdit'] == TRUE)) {
+			$this->setDblClkEdit ();
+		}
 		
 		return $view->jqGrid ( $this );
 	}
@@ -393,11 +397,8 @@ class Ingot_JQuery_JqGrid {
 		
 		$this->_plugins->setGridData ( $data );
 		$this->_plugins->preResponse ();
-				
-		return ZendX_JQuery::encodeJson ( $data );
 		
-
-		//return custom_json::encode ( $data );
+		return ZendX_JQuery::encodeJson ( $data );
 	
 	}
 	
@@ -424,7 +425,7 @@ class Ingot_JQuery_JqGrid {
 	 * Get plugin already been registered?
 	 * 
 	 * @param $plugin
-	 * @return boolean
+	 * @return Ingot_JQuery_JqGrid_Plugin_Abstract
 	 */
 	public function getPlugin($plugin) {
 		return $this->_plugins->getPlugin ( $plugin );
@@ -455,12 +456,12 @@ class Ingot_JQuery_JqGrid {
 		// Filter items by supplied search criteria
 		if ($request->getParam ( '_search' ) == 'true') {
 			$filter = $this->_getFilterParams ( $request );
-			$this->_paginator->getAdapter ()->filter ( $filter ['field'], $filter ['value'], $filter ['expression'], $filter ['options'] );
+			$this->_paginator->getAdapter ()->filter ( $filter ['field'], $filter ['value'], $filter ['expression'], $filter ['options'], $filter ['useHaving'] );
 		}
 		
 		// Sort items by the supplied column field
 		if ($request->getParam ( 'sidx' )) {
-			$this->_paginator->getAdapter ()->sort ( new Zend_Db_Expr($request->getParam ( 'sidx' )), $request->getParam ( 'sord', 'asc' ) );
+			$this->_paginator->getAdapter ()->sort ( new Zend_Db_Expr ( $request->getParam ( 'sidx' ) ), $request->getParam ( 'sord', 'asc' ) );
 		}
 		
 		// Pass the current page number to paginator
@@ -479,20 +480,23 @@ class Ingot_JQuery_JqGrid {
 		//		Zend_Debug::dump($rows);
 		
 
+		$intCounter = 0;
+		
 		foreach ( $rows as $k => $row ) {
 			
 			$strIdCol = $this->getIdCol ();
 			if (! empty ( $strIdCol )) {
-				$grid->rows [$k] ['id'] = $row [$strIdCol];
+				$grid->rows [$intCounter] ['id'] = $row [$strIdCol];
 			} elseif (isset ( $row ['id'] )) {
-				$grid->rows [$k] ['id'] = $row ['id'];
+				$grid->rows [$intCounter] ['id'] = $row ['id'];
 			}
 			
-			$grid->rows [$k] ['cell'] = array ();
+			$grid->rows [$intCounter] ['cell'] = array ();
 			
 			foreach ( $this->_columns as $column ) {
-				array_push ( $grid->rows [$k] ['cell'], $column->cellValue ( $row ) );
+				array_push ( $grid->rows [$intCounter] ['cell'], $column->cellValue ( $row ) );
 			}
+			$intCounter ++;
 		}
 		return $grid;
 	}
@@ -520,6 +524,12 @@ class Ingot_JQuery_JqGrid {
 					}
 					$filters ['value'] [] = $objColumn->unformatValue ( $rule ['data'] );
 					$filters ['expression'] [] = $this->_expression [$rule ['op']];
+					$boolHaving = $objColumn->getOption ( 'useHaving' );
+					if (! empty ( $boolHaving )) {
+						$filters ['useHaving'] [] = true;					
+					} else {
+						$filters ['useHaving'] [] = false;					
+					}
 				}
 				
 				$filters ['options'] ['multiple'] = true;
@@ -543,30 +553,30 @@ class Ingot_JQuery_JqGrid {
 	
 	public function setDblClkEdit() {
 		
-		$arrParamsPlugin = $this->_plugins->getOption ( 'pager' );
+		$strParamsEdit = $this->getPager ()->getConfig ( 'strEditData' );
 		
-		$arrParamsEdit = array ();
-		if (! empty ( $arrParamsPlugin ) && ! empty ( $arrParamsPlugin ['edit'] )) {
-			$arrParamsEdit = $arrParamsPlugin ['edit'];
-		}
+		//		$arrParamsEdit = array ();
+		//		if (! empty ( $arrParamsPlugin ) && ! empty ( $arrParamsPlugin ['edit'] )) {
+		//			$arrParamsEdit = $arrParamsPlugin ['edit'];
+		//		}
+		//		
+		//		$strParamsEdit = $this->encodeJsonOptions ( $arrParamsEdit );
 		
-		$strParamsEdit = $this->encodeJsonOptions ( $arrParamsEdit );
-		
+
 		$this->setGridEvent ( 'ondblClickRow', "function(rowId, iRow, iCol, e){ if(rowId){  $(this).jqGrid('editGridRow',rowId, {$strParamsEdit}); } }" );
 	}
 	
 	public function encodeJsonOptions($arrProperties) {
 		
-				
 		$strOptions = '';
 		
-		if ($this->isUseCustonJson() ){
-		
+		if ($this->isUseCustonJson ()) {
+			
 			$arrUnEscapeList = array_merge ( Ingot_JQuery_JqGrid::$arrEvents, Ingot_JQuery_JqGrid::$arrCallbacks );
-		
+			
 			// Iterate over array
 			foreach ( ( array ) $arrProperties as $strPropertyKey => $mixProperty ) {
-			
+				
 				if (! empty ( $strOptions )) {
 					$strOptions .= ", ";
 				}
@@ -580,7 +590,8 @@ class Ingot_JQuery_JqGrid {
 						$strOptions .= '"' . $strPropertyKey . '":' . $this->encodeJsonOptions ( $mixProperty );
 					} else {
 						$strOptions .= '"' . $strPropertyKey . '":' . ZendX_JQuery::encodeJson ( $mixProperty );
-						//$strOptions .= '"' . $strPropertyKey . '":' . custom_json::encode ( $mixProperty );
+					
+		//$strOptions .= '"' . $strPropertyKey . '":' . custom_json::encode ( $mixProperty );
 					}
 				
 				}
@@ -589,46 +600,44 @@ class Ingot_JQuery_JqGrid {
 			$strOptions = "{" . $strOptions . "}";
 		
 		} else {
-			$strOptions =  ZendX_JQuery::encodeJson ( $arrProperties );
-		} 
+			$strOptions = ZendX_JQuery::encodeJson ( $arrProperties );
+		}
 		return $strOptions;
 	}
 	
-	public function clearFilterParams($request){	
-		return $this->_getFilterParams($request);
+	public function clearFilterParams($request) {
+		return $this->_getFilterParams ( $request );
 	}
 	
 	/**
-	*
-	* Use Local JSON class or not
-	*
-	* @param bool $boolFlag
-	* @return Ingot_JQuery_JqGrid
-	*/
-	public function setCustomJson($boolFlag = true){
+	 *
+	 * Use Local JSON class or not
+	 *
+	 * @param bool $boolFlag
+	 * @return Ingot_JQuery_JqGrid
+	 */
+	public function setCustomJson($boolFlag = true) {
 		$this->_boolCustomJson = $boolFlag;
 		return $this;
 	}
 	
 	/**
-	*
-	* Use Local JSON class or not
-	*
-	* @return bool
-	*/
-	public function isUseCustonJson(){
+	 *
+	 * Use Local JSON class or not
+	 *
+	 * @return bool
+	 */
+	public function isUseCustonJson() {
 		return $this->_boolCustomJson;
 	}
 	
-	
 	/**
-	 * Get Pager Object
+	 * 
+	 * Enter description here ...
+	 * @return Ingot_JQuery_JqGrid_Plugin_Abstract
 	 */
-	public function getPager(){
-		
-		$objPlugin = $this->getPlugin($this->_pagerClass);
-		
-		return $objPlugin;
+	public function getPager() {
+		return $this->getPlugin ( $this->_pagerClass );
 	}
 
 }
@@ -644,7 +653,7 @@ class custom_json {
 	 */
 	public static function encode($array) {
 		
-		if (!is_array ( $array ) && !is_object ( $array )) {
+		if (! is_array ( $array ) && ! is_object ( $array )) {
 			$output = self::_val ( $array );
 		
 		} else {

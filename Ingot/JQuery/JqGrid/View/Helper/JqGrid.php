@@ -22,7 +22,6 @@ class Ingot_JQuery_JqGrid_View_Helper_JqGrid extends ZendX_JQuery_View_Helper_Ui
 		$arrGridOptions = $grid->getOptions ();
 		
 		$strOptions = $grid->encodeJsonOptions($arrGridOptions);
-
 		return $strOptions;
 	}
 	

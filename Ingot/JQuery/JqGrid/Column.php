@@ -161,12 +161,34 @@ class Ingot_JQuery_JqGrid_Column {
 		} else {
 			$strCellValue = "";
 		}
-		return htmlentities ( $strCellValue );
+		return htmlentities ( $strCellValue, ENT_COMPAT, "UTF-8" );  
 	}
 	
 	
 	public function unformatValue($strValue) {
 		return $strValue;
 	}
+	
+	/**
+	 * Set Grid Object
+	 * 
+	 * @param Ingot_JQuery_JqGrid $objGrid
+	 * @return Ingot_JQuery_JqGrid_Column_Decorator_Abstract
+	 */
+	public function setGrid(Ingot_JQuery_JqGrid $objGrid){		
+		$this->_objGrid = $objGrid;		
+		return $this;
+	}
+	
+	/**
+	 * 
+	 * Get Grid Object
+	 * @return Ingot_JQuery_JqGrid_Column_Decorator_Abstract
+	 */
+	public function getGrid(){
+		return $this->_objGrid;
+	}
+	
+	public function decorate(){ }
 
 }

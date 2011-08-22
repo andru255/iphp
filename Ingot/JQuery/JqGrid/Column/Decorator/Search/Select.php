@@ -39,12 +39,17 @@ class Ingot_JQuery_JqGrid_Column_Decorator_Search_Select extends Ingot_JQuery_Jq
 	 */
 	public function decorate() {
 		$this->_column->setOption ( 'stype', 'select' );
+		$this->_column->setOption ( 'search', TRUE );
 		
 		$strData ['value'] = "";
 		
+		$objTranslate = Zend_Registry::get ( 'Zend_Translate' );
 		foreach ( $this->_options ['value'] as $strKey => $strValue ) {
 			if (! empty ( $strData ['value'] )) {
 				$strData ['value'] .= ";";
+			}
+			if (!empty($objTranslate)){
+				$strValue = $objTranslate->translate($strValue);
 			}
 			$strData ['value'] .= $strKey . ":" . $strValue;
 		}

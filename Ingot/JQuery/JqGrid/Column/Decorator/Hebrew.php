@@ -45,7 +45,7 @@ class Ingot_JQuery_JqGrid_Column_Decorator_Hebrew extends Ingot_JQuery_JqGrid_Co
     // :TODO Add Code Page Set and Get for Input and Output
 
     /**
-	 * Decorate column to display Currency
+	 * Decorate column
 	 * 
 	 * @return void
 	 */
@@ -54,13 +54,17 @@ class Ingot_JQuery_JqGrid_Column_Decorator_Hebrew extends Ingot_JQuery_JqGrid_Co
     	
     }
     
-    public function cellValue($row){
-    	$strCellValue = parent::cellValue($row);
-    	$strCellValue = html_entity_decode($strCellValue);
+    public function cellValue($row){    
+		if (isset ( $row [$this->getName ()] )) {
+			$strCellValue = $row [$this->getName ()];
+		} else {
+			$strCellValue = "";
+		}
+		
     	if ($this->getTranslation()){
     		$strCellValue = iconv("cp1255","UTF-8",$strCellValue); 
     	}
-    	return $strCellValue;
     	
+		return htmlentities ( $strCellValue, ENT_COMPAT, "UTF-8" );      	
     }
 }

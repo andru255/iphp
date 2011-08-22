@@ -12,9 +12,16 @@ abstract class Ingot_JQuery_JqGrid_Column_Decorator_Abstract {
 	/**
 	 * Column Instance
 	 * 
-	 * @var $_column Ingot_JQuery_JqGrid_Column
+	 * @var Ingot_JQuery_JqGrid_Column
 	 */
 	protected $_column;
+	
+	/**
+	 * Grid Object
+	 * 
+	 * @var Ingot_JQuery_JqGrid
+	 */
+	protected $_objGrid;
 	
 	protected $_options = array();
     
@@ -113,6 +120,37 @@ abstract class Ingot_JQuery_JqGrid_Column_Decorator_Abstract {
 			}
 		}
 		return $this;
+	}
+	
+	private function setDataInit($strValue){
+		
+		$this->_options['dataInit'] = new Zend_Json_Expr($strValue);
+		return $this;
+	}
+	
+	/**
+	 * Set Grid Object
+	 * 
+	 * @param Ingot_JQuery_JqGrid $objGrid
+	 * @return Ingot_JQuery_JqGrid_Column_Decorator_Abstract
+	 */
+	public function setGrid(Ingot_JQuery_JqGrid $objGrid){		
+		$this->_objGrid = $objGrid;		
+		$this->_column->setGrid($objGrid);
+		return $this;
+	}
+	
+	/**
+	 * 
+	 * Get Grid Object
+	 * @return Ingot_JQuery_JqGrid
+	 */
+	public function getGrid(){
+		return $this->_objGrid;
+	}
+	
+	public function getGridId(){
+		return $this->_objGrid->getId();
 	}
 	
 	abstract public function decorate();

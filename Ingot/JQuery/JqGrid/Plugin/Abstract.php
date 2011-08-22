@@ -50,7 +50,7 @@ abstract class Ingot_JQuery_JqGrid_Plugin_Abstract {
 	 * @var array
 	 */
 	
-	private $_options = array ();
+	protected $_options = array ();
 	/**
 	 * Set View Instance
 	 * 
@@ -142,25 +142,57 @@ abstract class Ingot_JQuery_JqGrid_Plugin_Abstract {
 		}
 		return $this;
 	}
-		
+	
 	/**
 	 * Set a single column option
 	 * 
 	 * @return Ingot_JQuery_JqGrid_Plugin_Abstract
 	 */
 	public function setOption($name, $value) {
-	
-	
-		$arrUnEscapeList = array_merge ( (array)$this->getMethods(), (array)$this->getEvents() );
 		
-		if (in_array ( $name, $arrUnEscapeList, true )) {
-			$this->_options [$name] = new Zend_Json_Expr($value);			
+		if (is_array ( $value )) {
+			$value = $this->makesaveOptions ( $name, $value );
+			$arrOption = $this->getOptions ();
+			$this->_options = $this->MergeArrays ( ( array ) $arrOption, array ($name => $value ) );
+		
+		//			$this->_options = $this->array_merge_recursive_leftsource ( array ($name => $value ), ( array ) $arrOption );
 		} else {
-			$this->_options [$name] = $value;
+			
+			$this->_options [$name] = $this->makesaveOptions ( $name, $value );
+		
 		}
+		
 		return $this;
 	}
 	
+	function MergeArrays($Arr1, $Arr2) {
+		if (is_array($Arr1)) {
+			foreach ( $Arr2 as $key => $Value ) {
+				if (array_key_exists ( $key, $Arr1 ) && is_array ( $Value ))
+					$Arr1 [$key] = $this->MergeArrays ( $Arr1 [$key], $Arr2 [$key] );
+				
+				else
+					$Arr1 [$key] = $Value;
+			
+			}
+		}
+		
+		return $Arr1;
+	
+	}
+	
+	private function makesaveOptions($strOptionName, $mixOptions) {
+		if (is_array ( $mixOptions )) {
+			foreach ( $mixOptions as $strSubName => $mixSuvOptions ) {
+				$mixOptions [$strSubName] = $this->makesaveOptions ( $strSubName, $mixSuvOptions );
+			}
+		}
+		$arrUnEscapeList = array_merge ( ( array ) $this->getMethods (), ( array ) $this->getEvents () );
+		if (in_array ( $strOptionName, $arrUnEscapeList, true )) {
+			$mixOptions = new Zend_Json_Expr ( $mixOptions );
+		}
+		return $mixOptions;
+	}
 	
 	/**
 	 * Get a single option
@@ -196,22 +228,21 @@ abstract class Ingot_JQuery_JqGrid_Plugin_Abstract {
 			}
 		}
 		
-		$objGrid = $this->getGrid();
-		return $this->encodeJsonOptions($arrData);
+		$objGrid = $this->getGrid ();
+		return $this->encodeJsonOptions ( $arrData );
 	}
 	
-	
 	public function encodeJsonOptions($arrProperties) {
-						
+		
 		$strOptions = '';
 		
-		if ($this->getGrid()->isUseCustonJson() ){
-		
-			$arrUnEscapeList = array_merge ( (array)$this->getMethods(), (array)$this->getEvents() );
-		
+		if ($this->getGrid ()->isUseCustonJson ()) {
+			
+			$arrUnEscapeList = array_merge ( ( array ) $this->getMethods (), ( array ) $this->getEvents () );
+			
 			// Iterate over array
 			foreach ( ( array ) $arrProperties as $strPropertyKey => $mixProperty ) {
-			
+				
 				if (! empty ( $strOptions )) {
 					$strOptions .= ", ";
 				}
@@ -233,12 +264,10 @@ abstract class Ingot_JQuery_JqGrid_Plugin_Abstract {
 			$strOptions = "{" . $strOptions . "}";
 		
 		} else {
-			$strOptions =  ZendX_JQuery::encodeJson ( $arrProperties );
-		} 
+			$strOptions = ZendX_JQuery::encodeJson ( $arrProperties );
+		}
 		return $strOptions;
 	}
-	
-	
 	
 	abstract public function preResponse();
 	abstract public function postResponse();
