@@ -38,7 +38,7 @@ class Ingot_JQuery_JqGrid_View_Helper_JqGrid extends ZendX_JQuery_View_Helper_Ui
 		
 		$onload [] = sprintf ( '%s("#%s").jqGrid(%s);', ZendX_JQuery_View_Helper_JQuery::getJQueryHandler (), $grid->getId (), $this->getOptionsString ( $grid ) );
 		
-		$html [] = '<table id="' . $grid->getId () . '"></table>';
+		$html [] = '<table id="' . $grid->getId () . '"><tr><td /></tr></table>';
 		
 		// Load the jqGrid plugin view variables
 		$html = array_merge ( $html, $this->view->jqGridPluginBroker ['html'] );
