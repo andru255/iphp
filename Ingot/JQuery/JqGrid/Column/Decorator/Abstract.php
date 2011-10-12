@@ -74,7 +74,7 @@ abstract class Ingot_JQuery_JqGrid_Column_Decorator_Abstract {
 	 * @return Ingot_JQuery_JqGrid_Column
 	 */
 	public function setOption($name, $value) {
-		$this->_column->getOption ( $name, $value );
+		$this->_column->setOption ( $name, $value );
 	}
 	
 	/**

@@ -3,6 +3,7 @@
  * @see Ingot_JQuery_JqGrid_Column_Decorator_Abstract
  */
 require_once 'Ingot/JQuery/JqGrid/Column/Decorator/Abstract.php';
+
 /**
  * Decorate a column which contains Search Select in search toolbar
  * 
@@ -10,43 +11,51 @@ require_once 'Ingot/JQuery/JqGrid/Column/Decorator/Abstract.php';
  * @copyright Copyright (c) 2005-2009 Warrant Group Ltd. (http://www.warrant-group.com)
  * @author Alex Frenkel
  */
-class Ingot_JQuery_JqGrid_Column_Decorator_Search_Select extends Ingot_JQuery_JqGrid_Column_Decorator_Abstract {
+class Ingot_JQuery_JqGrid_Column_Decorator_Search_Select extends Ingot_JQuery_JqGrid_Column_Decorator_Abstract
+{
     protected $_options = array();
+
     /**
      * Constructor
      * 
      * @return void
      */
-    public function __construct ($column, $options = array()) {
+    public function __construct ($column, $options = array())
+    {
         $this->_column = $column;
         if (empty($options['value'])) {
-            throw new Ingot_JQuery_JqGrid_Exception(
-            "Value mast be set for select", - 3);
+            throw new Ingot_JQuery_JqGrid_Exception("Value mast be set for select", - 3);
         }
         $this->_options = $options;
-        $this->decorate();
+       // $this->decorate();
     }
+
     /**
      * Decorate column to search select
      * 
      * @return void
      */
-    public function decorate () {
+    public function decorate ()
+    {
         $this->_column->setOption('stype', 'select');
         $this->_column->setOption('search', TRUE);
         $strData['value'] = "";
         if (Zend_Registry::isRegistered('Zend_Translate')) {
             $objTranslate = Zend_Registry::get('Zend_Translate');
-            foreach ($this->_options['value'] as $strKey => $strValue) {
-                if (! empty($strData['value'])) {
-                    $strData['value'] .= ";";
-                }
-                if (! empty($objTranslate)) {
-                    $strValue = $objTranslate->translate($strValue);
-                }
-                $strData['value'] .= $strKey . ":" . $strValue;
-            }
         }
+        
+        $arrValues = array("" => 'Select')+$this->_options['value'];
+        
+        foreach ($arrValues as $strKey => $strValue) {
+            if (! empty($strData['value'])) {
+                $strData['value'] .= ";";
+            }
+            if (! empty($objTranslate)) {
+                $strValue = $objTranslate->translate($strValue);
+            }
+            $strData['value'] .= $strKey . ":" . $strValue;
+        }
+        
         if (! empty($this->_options['sopt'])) {
             $strData['sopt'] = $this->_options['sopt'];
         }
@@ -55,7 +64,7 @@ class Ingot_JQuery_JqGrid_Column_Decorator_Search_Select extends Ingot_JQuery_Jq
         }
         if (! empty($this->_options['dataUrl'])) {
             $strData['dataUrl'] = $this->_options['dataUrl'];
-            if (! empty($this->_options['defaultValue'])) {
+            if (! empty($this->_options['buildSelect'])) {
                 $strData['buildSelect'] = $this->_options['buildSelect'];
             }
         }
@@ -72,5 +81,6 @@ class Ingot_JQuery_JqGrid_Column_Decorator_Search_Select extends Ingot_JQuery_Jq
             $strData['searchhidden'] = $this->_options['searchhidden'];
         }
         $this->_column->setOption('searchoptions', $strData);
+        
     }
 }

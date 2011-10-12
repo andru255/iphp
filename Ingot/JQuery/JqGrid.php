@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This grid component allows the rendering of jqGrid which is an ajax-enabled 
  * javascript control that provides solutions for representing and manipulating 
@@ -71,11 +72,8 @@ class Ingot_JQuery_JqGrid
      * 
      * @var string
      */
-    protected $_expression = array('eq' => 'EQUAL', 'ne' => 'NOT_EQUAL', 
-    'lt' => 'LESS_THAN', 'le' => 'LESS_THAN_OR_EQUAL', 'gt' => 'GREATER_THAN', 
-    'ge' => 'GREATER_THAN_OR_EQUAL', 'bw' => 'BEGIN_WITH', 
-    'bn' => 'NOT_BEGIN_WITH', 'in' => 'IN', 'ni' => 'NOT_IN', 'ew' => 'END_WITH', 
-    'en' => 'NOT_END_WITH', 'cn' => 'CONTAIN', 'nc' => 'NOT_CONTAIN');
+    protected $_expression = array('eq' => 'EQUAL', 'ne' => 'NOT_EQUAL', 'lt' => 'LESS_THAN', 'le' => 'LESS_THAN_OR_EQUAL', 'gt' => 'GREATER_THAN', 'ge' => 'GREATER_THAN_OR_EQUAL', 
+    'bw' => 'BEGIN_WITH', 'bn' => 'NOT_BEGIN_WITH', 'in' => 'IN', 'ni' => 'NOT_IN', 'ew' => 'END_WITH', 'en' => 'NOT_END_WITH', 'cn' => 'CONTAIN', 'nc' => 'NOT_CONTAIN');
     /**
      * Instance of Ingot_JQuery_JqGrid_Plugin_Broker
      * 
@@ -83,16 +81,16 @@ class Ingot_JQuery_JqGrid
      */
     protected $_plugins;
     protected $_pagerClass = "Ingot_JQuery_JqGrid_Plugin_Pager";
-    public static $arrEvents = array("afterShowForm", "unformat", "dataInit", 
-    "beforeShowForm", "afterSubmit", "afterInsertRow", "beforeRequest", 
-    "beforeSelectRow", "gridComplete", "loadBeforeSend", "loadComplete", 
-    "loadError", "onCellSelect", "ondblClickRow", "onHeaderClick", "onPaging", 
-    "onRightClickRow", "onSelectAll", "onSelectRow", "onSortCol", "resizeStart", 
-    "resizeStop", "serializeGridData");
+    public static $arrEvents = array("afterShowForm", "unformat", "dataInit", "beforeShowForm", "afterSubmit", "afterInsertRow", "beforeRequest", "beforeSelectRow", "gridComplete", "loadBeforeSend", 
+    "loadComplete", "loadError", "onCellSelect", "ondblClickRow", "onHeaderClick", "onPaging", "onRightClickRow", "onSelectAll", "onSelectRow", "onSortCol", "resizeStart", "resizeStop", 
+    "serializeGridData");
     public static $arrCallbacks = array("custom_func");
     private $_boolCustomJson = false;
+
     CONST SORT_ASC = 'asc';
+
     CONST SORT_DESC = 'desc';
+
     /**
      * Constructor.
      *
@@ -101,8 +99,7 @@ class Ingot_JQuery_JqGrid
      */
     public function __construct ($id, $adapter, array $options = array())
     {
-        Zend_Paginator::addAdapterPrefixPath('Ingot_JQuery_JqGrid_Adapter', 
-        'Ingot/JQuery/JqGrid/Adapter');
+        Zend_Paginator::addAdapterPrefixPath('Ingot_JQuery_JqGrid_Adapter', 'Ingot/JQuery/JqGrid/Adapter');
         $this->_plugins = new Ingot_JQuery_JqGrid_Plugin_Broker();
         $this->_plugins->setGrid($this);
         $this->setAdapter($adapter);
@@ -115,35 +112,40 @@ class Ingot_JQuery_JqGrid
                 $options = $options->toArray();
             }
             if (! is_array($options)) {
-                throw new Zend_Exception(
-                'JqGrid options must be in an array or a Zend_Config object');
+                throw new Zend_Exception('JqGrid options must be in an array or a Zend_Config object');
             }
             $this->setOptions($options);
         }
         $this->_plugins->registerPlugin(new $this->_pagerClass());
     }
+
     public function setAdapter ($adapter)
     {
         if ($adapter instanceof Ingot_JQuery_JqGrid_Adapter_Interface) {
             $this->_adapter = $adapter;
         } elseif ($adapter instanceof Zend_Db_Table_Select) {
-            $this->_adapter = new Ingot_JQuery_JqGrid_Adapter_DbTableSelect(
-            $adapter);
+            $this->_adapter = new Ingot_JQuery_JqGrid_Adapter_DbTableSelect($adapter);
         } elseif ($adapter instanceof Zend_Db_Select) {
             $this->_adapter = new Ingot_JQuery_JqGrid_Adapter_DbSelect($adapter);
         } elseif ($adapter instanceof Zend_Db_Table) {
-            $this->_adapter = new Ingot_JQuery_JqGrid_Adapter_DbSelect(
-            $adapter->select(TRUE));
+            $this->_adapter = new Ingot_JQuery_JqGrid_Adapter_DbSelect($adapter->select(TRUE));
         } elseif (is_string($adapter)) {
             $objDbTable = new $adapter();
-            $this->_adapter = new Ingot_JQuery_JqGrid_Adapter_DbTableSelect(
-            $objDbTable->select(TRUE));
+            $this->_adapter = new Ingot_JQuery_JqGrid_Adapter_DbTableSelect($objDbTable->select(TRUE));
         } else {
-            throw new Ingot_JQuery_JqGrid_Exception(
-            'Ingot_JQuery_JqGrid only accepts instances of the type ' .
-             'Ingot_JQuery_JqGrid_Adapter_Interface');
+            throw new Ingot_JQuery_JqGrid_Exception('Ingot_JQuery_JqGrid only accepts instances of the type ' . 'Ingot_JQuery_JqGrid_Adapter_Interface');
         }
     }
+    
+    /**
+     * 
+     * Get current Adapter
+     * @return Ingot_JQuery_JqGrid_Adapter_DbTableSelect
+     */
+    public function getAdapter () {
+        return $this->_adapter;
+    }
+
     /**
      * Get unique grid identifier
      * 
@@ -153,6 +155,7 @@ class Ingot_JQuery_JqGrid
     {
         return $this->_id;
     }
+
     /**
      * Get grid ID Col Name
      * 
@@ -162,6 +165,7 @@ class Ingot_JQuery_JqGrid
     {
         return $this->_idCol;
     }
+
     /**
      * Set Grid Id Col Name
      * 
@@ -172,6 +176,7 @@ class Ingot_JQuery_JqGrid
     {
         return $this->_idCol = $strCol;
     }
+
     /**
      * Set default grid options
      * 
@@ -187,11 +192,11 @@ class Ingot_JQuery_JqGrid
         $this->_options['autowidth'] = true;
         $this->_options['height'] = '480px';
         $this->_options['rowNum'] = $this->_defaultItemCountPerPage;
-        $this->_options['rowList'] = range($this->_defaultItemCountPerPage, 
-        $this->_defaultItemCountPerPage * 5, $this->_defaultItemCountPerPage);
+        $this->_options['rowList'] = range($this->_defaultItemCountPerPage, $this->_defaultItemCountPerPage * 5, $this->_defaultItemCountPerPage);
         $this->_options['caption'] = ucwords(str_replace("_", "", $this->_id));
         $this->_options['postData'] = array('grid' => $this->_id);
     }
+
     /**
      * Override set to allow access to grid options
      * 
@@ -201,6 +206,7 @@ class Ingot_JQuery_JqGrid
     {
         $this->setOption($name, $value);
     }
+
     /**
      * Override get to allow access to grid options
      * 
@@ -211,6 +217,7 @@ class Ingot_JQuery_JqGrid
     {
         return $this->getOption($name);
     }
+
     /**
      * Set a single grid option
      * 
@@ -218,8 +225,7 @@ class Ingot_JQuery_JqGrid
      */
     public function setOption ($name, $value)
     {
-        $arrUnEscapeList = array_merge(Ingot_JQuery_JqGrid::$arrEvents, 
-        Ingot_JQuery_JqGrid::$arrCallbacks);
+        $arrUnEscapeList = array_merge(Ingot_JQuery_JqGrid::$arrEvents, Ingot_JQuery_JqGrid::$arrCallbacks);
         if (in_array($name, $arrUnEscapeList, true)) {
             $this->_options[$name] = new Zend_Json_Expr($value);
         } else {
@@ -227,6 +233,7 @@ class Ingot_JQuery_JqGrid
         }
         return $this;
     }
+
     /**
      * Sets grid options
      *
@@ -245,6 +252,7 @@ class Ingot_JQuery_JqGrid
         }
         return $this;
     }
+
     /**
      * Get a single grid option
      * 
@@ -258,6 +266,7 @@ class Ingot_JQuery_JqGrid
             return false;
         }
     }
+
     /**
      * Get all grid options
      * 
@@ -267,6 +276,7 @@ class Ingot_JQuery_JqGrid
     {
         return $this->_options;
     }
+
     /**
      * Sets the view object.
      *
@@ -278,6 +288,7 @@ class Ingot_JQuery_JqGrid
         $this->_view = $view;
         return $this;
     }
+
     /**
      * Retrieves the view instance.  If none registered, attempts to pull 
      * from ViewRenderer.
@@ -291,8 +302,7 @@ class Ingot_JQuery_JqGrid
              * @see Zend_Controller_Action_HelperBroker
              */
             require_once 'Zend/Controller/Action/HelperBroker.php';
-            $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper(
-            'viewRenderer');
+            $viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('viewRenderer');
             if ($viewRenderer->view === null) {
                 $viewRenderer->initView();
             }
@@ -300,6 +310,7 @@ class Ingot_JQuery_JqGrid
         }
         return $this->_view;
     }
+
     /**
      * Add a column object to the grid.
      * 
@@ -314,6 +325,7 @@ class Ingot_JQuery_JqGrid
         $column->decorate();
         return $column;
     }
+
     /**
      * Return all columns
      * 
@@ -323,6 +335,7 @@ class Ingot_JQuery_JqGrid
     {
         return $this->_columns;
     }
+
     /**
      * Return column object
      * 
@@ -336,13 +349,13 @@ class Ingot_JQuery_JqGrid
         $objColumns = $this->getColumns();
         foreach ($objColumns as $objColumn) {
             $objColOptions = $objColumn->getOptions();
-            if (isset($objColOptions['index']) &&
-             $objColOptions['index'] == $column) {
+            if (isset($objColOptions['index']) && $objColOptions['index'] == $column) {
                 return $objColumn;
             }
         }
         return;
     }
+
     /**
      * Render the grid.
      *
@@ -355,8 +368,7 @@ class Ingot_JQuery_JqGrid
             $this->setView($view);
         }
         $view = $this->getView();
-        $view->addHelperPath("Ingot/JQuery/JqGrid/View/Helper", 
-        "Ingot_JQuery_JqGrid_View_Helper");
+        $view->addHelperPath("Ingot/JQuery/JqGrid/View/Helper", "Ingot_JQuery_JqGrid_View_Helper");
         $this->_plugins->setView($view);
         $this->_plugins->preRender();
         $request = Zend_Controller_Front::getInstance()->getRequest();
@@ -364,12 +376,9 @@ class Ingot_JQuery_JqGrid
         if (empty($this->_options['url'])) {
             $this->_options['url'] = $request->getRequestUri();
             // Automatically send a response to update jqGrid
-            if ($request->isXmlHttpRequest() &&
-             $request->getParam('grid') == $this->_id) {
+            if ($request->isXmlHttpRequest() && $request->getParam('grid') == $this->_id) {
                 $this->sendResponse($request);
-            } elseif ($request->isXmlHttpRequest() && $request->getParam(
-            'oper') &&
-             ($this->_adapter instanceof Ingot_JQuery_JqGrid_Adapter_DbTableSelect)) {
+            } elseif ($request->isXmlHttpRequest() && $request->getParam('oper') && ($this->_adapter instanceof Ingot_JQuery_JqGrid_Adapter_DbTableSelect)) {
                 $this->_adapter->gridSave($request, $view);
             }
             $arrParams = $request->getParams();
@@ -378,12 +387,12 @@ class Ingot_JQuery_JqGrid
             $this->_options['colModel'][] = $column->getOptions();
         }
         $this->_plugins->postRender();
-        if (! empty($arrOptions) && ! empty($arrOptions['DblClkEdit']) &&
-         ($arrOptions['DblClkEdit'] == TRUE)) {
+        if (! empty($arrOptions) && ! empty($arrOptions['DblClkEdit']) && ($arrOptions['DblClkEdit'] == TRUE)) {
             $this->setDblClkEdit();
         }
         return $view->jqGrid($this);
     }
+
     /**
      * Send Response
      * 
@@ -397,6 +406,7 @@ class Ingot_JQuery_JqGrid
         echo $this->response($request);
         $this->_plugins->postResponse();
     }
+
     /**
      * Return a data type which describe's the jqGrid structure, currently only 
      * JSON is supported.
@@ -411,6 +421,7 @@ class Ingot_JQuery_JqGrid
         $this->_plugins->preResponse();
         return ZendX_JQuery::encodeJson($data);
     }
+
     /**
      * Register Plugin
      * 
@@ -420,6 +431,7 @@ class Ingot_JQuery_JqGrid
     {
         return $this->_plugins->registerPlugin($plugin);
     }
+
     /**
      * Has plugin already been registered?
      * 
@@ -430,6 +442,7 @@ class Ingot_JQuery_JqGrid
     {
         return $this->_plugins->hasPlugin($plugin);
     }
+
     /**
      * Get plugin already been registered?
      * 
@@ -440,6 +453,7 @@ class Ingot_JQuery_JqGrid
     {
         return $this->_plugins->getPlugin($plugin);
     }
+
     /**
      * Unregister Plugin
      * 
@@ -449,36 +463,30 @@ class Ingot_JQuery_JqGrid
     {
         return $this->_plugins->unregisterPlugin($plugin);
     }
+
     /**
      * Create the grid data structure
      * 
      * @return object
      */
-    protected function _createGridData (
-    Zend_Controller_Request_Abstract $request)
+    protected function _createGridData (Zend_Controller_Request_Abstract $request)
     {
         // Instantiate Zend_Paginator with the required data source adaptor
         if (! $this->_paginator instanceof Zend_Paginator) {
             $this->_paginator = new Zend_Paginator($this->_adapter);
-            $this->_paginator->setDefaultItemCountPerPage(
-            $request->getParam('rows', $this->_defaultItemCountPerPage));
+            $this->_paginator->setDefaultItemCountPerPage($request->getParam('rows', $this->_defaultItemCountPerPage));
         }
         // Filter items by supplied search criteria
         if ($request->getParam('_search') == 'true') {
             $filter = $this->_getFilterParams($request);
-            $this->_paginator->getAdapter()->filter($filter['field'], 
-            $filter['value'], $filter['expression'], $filter['options'], 
-            $filter['useHaving']);
+            $this->_paginator->getAdapter()->filter($filter['field'], $filter['value'], $filter['expression'], $filter['options'], $filter['useHaving']);
         }
         // Sort items by the supplied column field
         if ($request->getParam('sidx')) {
-            $this->_paginator->getAdapter()->sort(
-            new Zend_Db_Expr($request->getParam('sidx')), 
-            $request->getParam('sord', 'asc'));
+            $this->_paginator->getAdapter()->sort(new Zend_Db_Expr($request->getParam('sidx')), $request->getParam('sord', 'asc'));
         }
         // Pass the current page number to paginator
-        $this->_paginator->setCurrentPageNumber(
-        $request->getParam('page', 1));
+        $this->_paginator->setCurrentPageNumber($request->getParam('page', 1));
         // Fetch a row of items from the adapter
         $rows = $this->_paginator->getCurrentItems();
         $grid = new stdClass();
@@ -498,13 +506,13 @@ class Ingot_JQuery_JqGrid
             }
             $grid->rows[$intCounter]['cell'] = array();
             foreach ($this->_columns as $column) {
-                array_push($grid->rows[$intCounter]['cell'], 
-                $column->cellValue($row));
+                array_push($grid->rows[$intCounter]['cell'], $column->cellValue($row));
             }
             $intCounter ++;
         }
         return $grid;
     }
+
     /**
      * Return filter parameters for single or multiple fields.
      *
@@ -520,13 +528,11 @@ class Ingot_JQuery_JqGrid
                 foreach ($filter['rules'] as $rule) {
                     $objColumn = $this->getColumn($rule['field']);
                     if ($objColumn->getOption('schema')) {
-                        $filters['field'][] = $objColumn->getOption('schema') .
-                         "." . $rule['field'];
+                        $filters['field'][] = $objColumn->getOption('schema') . "." . $rule['field'];
                     } else {
                         $filters['field'][] = $rule['field'];
                     }
-                    $filters['value'][] = $objColumn->unformatValue(
-                    $rule['data']);
+                    $filters['value'][] = $objColumn->unformatValue($rule['data']);
                     $filters['expression'][] = $this->_expression[$rule['op']];
                     $boolHaving = $objColumn->getOption('useHaving');
                     if (! empty($boolHaving)) {
@@ -541,17 +547,16 @@ class Ingot_JQuery_JqGrid
             }
         }
         // Single field filtering
-        $arrFilters = array(
-        'field' => $request->getParam('searchField'), 
-        'value' => trim($request->getParam('searchString')), 
-        'expression' => $this->_expression[$request->getParam('searchOper', 
-        'eq')], 'options' => array());
+        $arrFilters = array('field' => $request->getParam('searchField'), 'value' => trim($request->getParam('searchString')), 
+        'expression' => $this->_expression[$request->getParam('searchOper', 'eq')], 'options' => array());
         return $arrFilters;
     }
+
     protected function setGridEvent ($strEventName, $strData = null)
     {
         $this->setOption($strEventName, $strData);
     }
+
     public function setDblClkEdit ()
     {
         $strParamsEdit = $this->getPager()->getConfig('strEditData');
@@ -561,47 +566,39 @@ class Ingot_JQuery_JqGrid
         //		}
         //		
         //		$strParamsEdit = $this->encodeJsonOptions ( $arrParamsEdit );
-        $this->setGridEvent(
-        'ondblClickRow', 
-        "function(rowId, iRow, iCol, e){ if(rowId){  $(this).jqGrid('editGridRow',rowId, {$strParamsEdit}); } }");
+        $this->setGridEvent('ondblClickRow', "function(rowId, iRow, iCol, e){ if(rowId){  $(this).jqGrid('editGridRow',rowId, {$strParamsEdit}); } }");
     }
+
     public function setLocalEdit ()
     {
         $request = Zend_Controller_Front::getInstance()->getRequest();
-        $strUrl = $this->getView()->url(
-        array('module' => $request->getModuleName(), 
-        'controller' => $request->getControllerName(), 
-        'action' => $request->getActionName()), null, false, true);
+        $strUrl = $this->getView()->url(array('module' => $request->getModuleName(), 'controller' => $request->getControllerName(), 'action' => $request->getActionName()), null, false, true);
         $this->setOption("editurl", $strUrl);
         return $this;
     }
+
     public function encodeJsonOptions ($arrProperties)
     {
         $strOptions = '';
         if ($this->isUseCustonJson()) {
-            $arrUnEscapeList = array_merge(Ingot_JQuery_JqGrid::$arrEvents, 
-            Ingot_JQuery_JqGrid::$arrCallbacks);
+            $arrUnEscapeList = array_merge(Ingot_JQuery_JqGrid::$arrEvents, Ingot_JQuery_JqGrid::$arrCallbacks);
             // Iterate over array
             foreach ((array) $arrProperties as $strPropertyKey => $mixProperty) {
                 if (! empty($strOptions)) {
                     $strOptions .= ", ";
                 }
                 // Check that it's not one of the elements that needs escaiping 	
-                if (in_array($strPropertyKey, $arrUnEscapeList, 
-                true)) {
+                if (in_array($strPropertyKey, $arrUnEscapeList, true)) {
                     // This value does not need escaiping
-                    $strOptions .= '"' . $strPropertyKey .
-                     '":' . $mixProperty;
+                    $strOptions .= '"' . $strPropertyKey . '":' . $mixProperty;
                 } else {
                     if (is_array($mixProperty)) {
                         // Recursive call
-                        $strOptions .= '"' .
-                         $strPropertyKey . '":' .
-                         $this->encodeJsonOptions($mixProperty);
+                        $strOptions .= '"' . $strPropertyKey . '":' . $this->encodeJsonOptions($mixProperty);
                     } else {
-                        $strOptions .= '"' . $strPropertyKey . '":' .
-                         ZendX_JQuery::encodeJson($mixProperty);
-                         //$strOptions .= '"' . $strPropertyKey . '":' . custom_json::encode ( $mixProperty );
+                        $strOptions .= '"' . $strPropertyKey . '":' . ZendX_JQuery::encodeJson($mixProperty);
+                    
+     //$strOptions .= '"' . $strPropertyKey . '":' . custom_json::encode ( $mixProperty );
                     }
                 }
             }
@@ -611,10 +608,12 @@ class Ingot_JQuery_JqGrid
         }
         return $strOptions;
     }
+
     public function clearFilterParams ($request)
     {
         return $this->_getFilterParams($request);
     }
+
     /**
      *
      * Use Local JSON class or not
@@ -627,6 +626,7 @@ class Ingot_JQuery_JqGrid
         $this->_boolCustomJson = $boolFlag;
         return $this;
     }
+
     /**
      *
      * Use Local JSON class or not
@@ -637,6 +637,7 @@ class Ingot_JQuery_JqGrid
     {
         return $this->_boolCustomJson;
     }
+
     /**
      * 
      * Enter description here ...
@@ -647,8 +648,10 @@ class Ingot_JQuery_JqGrid
         return $this->getPlugin($this->_pagerClass);
     }
 }
+
 class custom_json
 {
+
     /**
      * Convert array to javascript object/array
      * :TODO Work with numbers
@@ -701,6 +704,7 @@ class custom_json
         // return
         return $output;
     }
+
     /**
      * [INTERNAL] Format value
      * @param mixed $val the value
