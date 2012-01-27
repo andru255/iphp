@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/qstat/!svn/ver/274/library/Ingot/JQuery/JqGrid/Adapter
+END
+Array.php
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/qstat/!svn/ver/136/library/Ingot/JQuery/JqGrid/Adapter/Array.php
+END
+Interface.php
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/qstat/!svn/ver/136/library/Ingot/JQuery/JqGrid/Adapter/Interface.php
+END
+DbSelect.php
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/qstat/!svn/ver/274/library/Ingot/JQuery/JqGrid/Adapter/DbSelect.php
+END
+Doctrine.php
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/qstat/!svn/ver/1/library/Ingot/JQuery/JqGrid/Adapter/Doctrine.php
+END
+DbTableSelect.php
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/qstat/!svn/ver/1/library/Ingot/JQuery/JqGrid/Adapter/DbTableSelect.php
+END
